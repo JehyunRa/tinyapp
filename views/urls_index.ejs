@@ -26,9 +26,7 @@
           <tr>
             <td><a href="/u/<%= url %>"><%= url %></a></td>
             <td><a href="<%= urls[url] %>"><%= urls[url] %></a></td>
-            <td><form class="form-inline" action="/u/<%= url %>">
-              <button class="btn btn-primary">Edit</button>
-            </form></td>
+            <td><a href="/u/<%= url %>"><button class="btn btn-primary">Edit</button></a></td>
             <td><form class="form-inline" action="/urls/delete/:shortURL" method="POST">
               <button type="submit" class="btn btn-secondary" name="delete" value="<%= url %>">Delete</button>
             </form></td>
