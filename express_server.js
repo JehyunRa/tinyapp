@@ -1,3 +1,5 @@
+// ## intialization ##
+
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
@@ -21,7 +23,9 @@ function generateRandomString() {
     else result += Math.floor(Math.random() * 9);
   }
   return result;
-}
+};
+
+// ## testing pages ##
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -32,36 +36,48 @@ app.get("/hello", (req, res) => {
   res.render("hello_world", templateVars);
 });
 
-app.get("/u", (req, res) => {
-  let templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
+// ## CREATE ##
+
+app.get("/u/new", (req, res) => {
+  res.render("urls_new");
 });
 
 app.post("/u", (req, res) => {
   let random = generateRandomString();
   //req.body.longURL === input;
   urlDatabase[random] = req.body.longURL;
-  // let templateVars = { shortURL: random, longURL: req.body.longURL };
-  // res.render("urls_show", templateVars);
   res.redirect(`/u/${random}`);
 });
 
-app.get("/u/new", (req, res) => {
-  res.render("urls_new");
+// ## READ ##
+
+app.get("/u", (req, res) => {
+  let templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
   // /:shortURL => shortURL === req.params.shortURL
+  if (!urlDatabase[req.params.shortURL]) res.status(404).send("cannot find the website");
   let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
   res.render("urls_show", templateVars);
-  // urlDatabase[req.params.shortURL]
-  // ? res.redirect(urlDatabase[req.params.shortURL])
-  // : res.send(404);
 });
 
-app.get("/u.json", (req, res) => {
-  res.json(urlDatabase);
+// ## UPDATE ##
+
+app.post("/u/change/:shortURL", (req, res) => {
+  urlDatabase[req.body.shortURL] = req.body.newLongURL;
+  res.redirect(`/u/${req.body.shortURL}`);
 });
+
+// ## DELETE ##
+
+app.post("/urls/delete/:shortURL", (req, res) => {
+  delete urlDatabase[req.body.delete];
+  res.redirect('/u');
+});
+
+// ## run server ##
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
