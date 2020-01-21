@@ -9,24 +9,20 @@
         <a class="nav-item nav-link" href="/u">My URLs</a>
         <a class="nav-item nav-link" href="/u/new">Create New URL</a>
       </div>
-      <div>
-        
-          <div class="form-group mb-2">
-            <%if (username === undefined) { %>
-            <form class="form-inline" action="/login" method="POST">
-            <label for="unsername" style="margin: 0.5em 0.5em 0 0">Username:</label>
-            <input class="form-control" type="text" name="username" style="width: 150px; margin: 0.6em 0.5em 0 0">
-            <button type="submit" class="btn btn-primary" style="margin-top: 0.5em">sign up</button>
-            </form>
-            <% } else { %>
-            <form class="form-inline" action="/logout" method="POST">
-            <label for="unsername" style="margin: 0.5em 0.5em 0 0"><%= username %></label>
-            <button type="submit" class="btn btn-primary" style="margin-top: 0.5em">logout</button>
-            </form>
-            <% } %>
-          </div>
-       
-      </div>
+    </div>
+  <div class="form-group mb-2">
+      <%if (username === undefined) { %>
+      <form class="form-inline" action="/login" method="POST">
+        <label for="unsername" style="margin: 0.5em 0.5em 0 0">Username:</label>
+        <input class="form-control" type="text" name="username" style="width: 150px; margin: 0.6em 0.5em 0 0">
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5em">sign up</button>
+      </form>
+      <% } else { %>
+      <form class="form-inline" action="/logout" method="POST">
+        <label for="unsername" style="margin: 0.5em 0.5em 0 0"><%= username %></label>
+        <button type="submit" class="btn btn-primary" style="margin-top: 0.5em">logout</button>
+      </form>
+      <% } %>
     </div>
   </nav>
 </header>
