@@ -12,12 +12,12 @@
     </div>
 
       <div class="navbar-nav">
-        <% if (email === undefined) { %>
+        <% if (user_id === undefined) { %>
           <a class="nav-item nav-link" href="/register">Register</a>
           <a class="nav-item nav-link" href="/login">Log In</a>
         <% } else { %>
         <form class="form-inline" action="/logout" method="POST">
-          <label for="email" style="margin: 0 0.5em 0 0"><%= email %></label>
+          <label for="email" style="margin: 0 0.5em 0 0"><%= user_id.email %></label>
           <button type="submit" class="btn btn-success">logout</button>
         </form>
         <% } %>
