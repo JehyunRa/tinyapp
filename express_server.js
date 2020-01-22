@@ -58,17 +58,23 @@ const arrExtractSearch = function(container, extract, searchItem) {
 // ## Register/Login/Error Page ##
 
 app.get("/register", (req, res) => {
-  let templateVars = { user_id: undefined };
   console.log('register page: users global object:');
   console.log(users);
+  if (req.cookies['user_id']) res.redirect('/urls');
+  else {
+  let templateVars = { user_id: undefined };
   res.render("register", templateVars);
+  }
 });
 
 app.get("/login", (req, res) => {
-  let templateVars = { user_id: undefined };
   console.log('login page: users global object:');
   console.log(users);
+  if (req.cookies['user_id']) res.redirect('/urls');
+  else {
+  let templateVars = { user_id: undefined };
   res.render("login", templateVars);
+  }
 });
 
 app.get("/error/:num", (req, res) => {
@@ -97,7 +103,7 @@ app.post("/register", (req, res) => {
       email: req.body.email, 
       password: req.body.password
     }
-    res.cookie("user_id", users[random]);
+    res.cookie("user_id", arrExtractSearch(users, 'email', req.body.email).subObj);
     res.redirect('/urls');
   }
 });
@@ -126,35 +132,24 @@ app.post("/logout", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let templateVars = { user_id: undefined };
   if (req.cookies['user_id']) {
-    templateVars.user_id = req.cookies['user_id'];
+    templateVars.user_id = users[req.cookies['user_id']];
     res.render("urls_new", templateVars);
 } else res.redirect('/login');
 });
 
 app.post("/urls", (req, res) => {
   if (req.cookies['user_id']) {
-    // let duplicate = '';
-    // for (const id of Object.keys(urlDatabase)) {
-    //   if (urlDatabase[id].longURL === req.body.longURL) {
-    //     duplicate = id;
-    //   }
-    // }
-    
-
-    if (!arrExtractSearch(urlDatabase, 'longURL', req.body.longURL).subObj) {
-      // console.log(!arrExtractSearch(urlDatabase, 'longURL', req.body.longURL).subObj);
+    let subObj = arrExtractSearch(urlDatabase, 'longURL', req.body.longURL).subObj;
+    if (subObj === undefined) {
       let random = generateRandomString(6);
-      //req.body.longURL === input;
       urlDatabase[random] = { longURL: req.body.longURL, userID: [] };
-      urlDatabase[random].userID.push(req.cookies['user_id'].id);
-      //test
-      // console.log(urlDatabase);
+      urlDatabase[random].userID.push(req.cookies['user_id']);
       res.redirect(`/urls/${random}`);
+    } else if (urlDatabase[subObj].userID.includes(req.cookies['user_id'])) {
+      res.redirect(`/urls/${subObj}`);
     } else {
-      urlDatabase[duplicate].userID.push(req.cookies['user_id'].id);
-      //test
-      console.log(urlDatabase);
-      res.redirect(`/urls/${duplicate}`);
+      urlDatabase[subObj].userID.push(req.cookies['user_id']);
+      res.redirect(`/urls/${subObj}`);
     }
   } else res.redirect('/login');
 });
@@ -162,26 +157,25 @@ app.post("/urls", (req, res) => {
 // ## READ ##
 
 app.get("/urls", (req, res) => {
-  let templateVars = {
-    urls: urlDatabase,
-    user_id: undefined
-  };
   if (req.cookies['user_id']) {
-    templateVars.user_id = req.cookies['user_id'];
+    let templateVars = {
+      urls: urlDatabase,
+      user_id: undefined,
+    };
+    templateVars.user_id = users[req.cookies['user_id']];
     res.render("urls_index", templateVars);
   } else res.redirect('/login');
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  // /:shortURL => shortURL === req.params.shortURL
   if (!urlDatabase[req.params.shortURL]) res.status(404).send("cannot find the website");
-  let templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user_id: undefined
-  };
-  if (req.cookies['user_id']) {
-    templateVars.user_id = req.cookies['user_id'];
+  else if (req.cookies['user_id']) {
+    let templateVars = {
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      user_id: undefined
+    };
+    templateVars.user_id = users[req.cookies['user_id']];
     res.render("urls_show", templateVars);
 } else res.redirect('/login');
 });
@@ -197,6 +191,9 @@ app.post("/u/change/:shortURL", (req, res) => {
 
 app.post("/urls/delete/:shortURL", (req, res) => {
   delete urlDatabase[req.body.delete];
+  console.log('testing delete');
+  console.log(urlDatabase);
+  console.log(req.params.shortURL);
   res.redirect('/urls');
 });
 
