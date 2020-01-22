@@ -11,27 +11,16 @@
 <body>
   <%- include('./partials/_header'); -%> 
   <main style="margin: 1em;">
-    <h3>My URLs</h3>
+    <h3>Log In</h3>
     <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">Short URL</th>
-          <th scope="col">Long URL</th>
-          <th scope="col">Edit</th>
-          <th scope="col">Delete</th>
-        </tr>
-      </thead>
       <tbody>
-        <% for(let url in urls) { %>
-          <tr>
-            <td><a href="/u/<%= url %>"><%= url %></a></td>
-            <td><a href="<%= urls[url] %>"><%= urls[url] %></a></td>
-            <td><a href="/u/<%= url %>"><button class="btn btn-warning">Edit</button></a></td>
-            <td><form class="form-inline" action="/urls/delete/:shortURL" method="POST">
-              <button type="submit" class="btn btn-danger" name="delete" value="<%= url %>">Delete</button>
-            </form></td>
-          </tr>
-        <% } %>
+        <form class="form-inline" action="/login" method="POST">
+          <label for="email" style="margin-top: 0.5em">Email:</label>
+          <input class="form-control" type="text" name="email" style="width: 150px">
+          <label for="password" style="margin-top: 0.5em">Password:</label>
+          <input class="form-control" type="text" name="password" style="width: 150px">
+          <button type="submit" class="btn btn-success" style="margin-top: 1em">Sign Up</button>
+        </form>
       </tbody>
     </table>
   </main>

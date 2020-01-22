@@ -16,9 +16,11 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-function generateRandomString() {
+const users = {};
+
+function generateRandomString(n) {
   let result = '';
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < n; i++) {
     let j = Math.floor(Math.random() * 3);
     if (j === 0) result += String.fromCharCode(Math.floor(Math.random() * Math.floor(26))+65);
     else if (j === 1) result += String.fromCharCode(Math.floor(Math.random() * Math.floor(26))+65).toLowerCase();
@@ -27,43 +29,86 @@ function generateRandomString() {
   return result;
 };
 
-// ## testing pages ##
+// ## Register/Login Page ##
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+app.get("/register", (req, res) => {
+  let templateVars = {
+    email: undefined
+  };
+  res.render("urls_register", templateVars);
 });
 
-app.get("/hello", (req, res) => {
-  let templateVars = { greeting: 'Hello World!' };
-  res.render("hello_world", templateVars);
+app.get("/login", (req, res) => {
+  let templateVars = {
+    email: undefined
+  };
+  if (req.cookies['email']) templateVars.email = req.cookies['email'];
+  res.render("urls_login", templateVars);
+});
+
+// ## Register ##
+
+app.post("/register", (req, res) => {
+  let duplicate = false;
+  for (const userID in users) {
+    if (users[userID].email === req.body.email) duplicate = true;
+  };
+  // if the ID already exist in the server to prevent register
+  if (duplicate === true) res.redirect('/register');
+  // if email or password is empty string
+  else if (req.body.email === '' || req.body.password === '') res.redirection('/register');
+  else {
+    let random = generateRandomString(10);
+    users[random] = {
+      id: random, 
+      email: req.body.email, 
+      password: req.body.password
+    }
+    console.log(users);
+  
+    res.cookie("email", req.body.email);
+    res.redirect('/u');
+  }
 });
 
 // ## Login ##
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
-  res.redirect('/u');
+  let duplicate = false;
+  for (const userID in users) {
+    if (users[userID].email === req.body.email) duplicate = true;
+  };
+  // if the ID does not exist in the server to log into
+  if (duplicate === false) {
+    res.redirect('/login');
+  } else {
+
+    console.log(users);
+  
+    res.cookie("email", req.body.email);
+    res.redirect('/u');
+  }
 });
 
 // ## Logout ##
 
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
-  res.redirect('/u');
+  res.clearCookie('email');
+  res.redirect('/login');
 });
 
 // ## CREATE ##
 
 app.get("/u/new", (req, res) => {
   let templateVars = {
-    username: undefined
+    email: undefined
   };
-  if (req.cookies['username']) templateVars.username = req.cookies['username'];
+  if (req.cookies['email']) templateVars.email = req.cookies['email'];
   res.render("urls_new", templateVars);
 });
 
 app.post("/u", (req, res) => {
-  let random = generateRandomString();
+  let random = generateRandomString(6);
   //req.body.longURL === input;
   urlDatabase[random] = req.body.longURL;
   res.redirect(`/u/${random}`);
@@ -74,9 +119,9 @@ app.post("/u", (req, res) => {
 app.get("/u", (req, res) => {
   let templateVars = {
     urls: urlDatabase,
-    username: undefined
+    email: undefined
   };
-  if (req.cookies['username']) templateVars.username = req.cookies['username'];
+  if (req.cookies['email']) templateVars.email = req.cookies['email'];
   res.render("urls_index", templateVars);
 });
 
@@ -86,9 +131,9 @@ app.get("/u/:shortURL", (req, res) => {
   let templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: undefined
+    email: undefined
   };
-  if (req.cookies['username']) templateVars.username = req.cookies['username'];
+  if (req.cookies['email']) templateVars.email = req.cookies['email'];
   res.render("urls_show", templateVars);
 });
 
