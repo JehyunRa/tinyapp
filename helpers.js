@@ -1,6 +1,7 @@
+// # ========= Initialization =============
 const request = require('request');
-// Helper Functions
 
+// # ======== Helper Functions ============
 // Creates random string with length of 'n'
 const generateRandomString = function(n) {
   let result = '';
@@ -13,16 +14,15 @@ const generateRandomString = function(n) {
   return result;
 };
 
-
 // For each sub-object of object 'container', look for its key named 'extract' and get value from it:
 // 1. push these values in an array
 // 2. if 'searchItem' optional input exist, check if any of the values match the searchItem and return true if match exists;
 // 3. if match exists from above, return name of the sub-object where 'extract: searchItem' key-value pair was found
 // return 1, 2, 3 in an object as following: {arr: 1, exist: 2, subObj: 3}
 const arrExtractSearch = function(container, extract, searchItem) {
-  arr = [];
-  exist = false;
-  subObj = undefined;
+  let arr = [];
+  let exist = false;
+  let subObj = undefined;
   for (const content of Object.keys(container)) {
     if (searchItem !== undefined) {
       if (container[content][extract] === searchItem) {
@@ -34,7 +34,6 @@ const arrExtractSearch = function(container, extract, searchItem) {
   }
   return {arr, exist, subObj};
 };
-
 
 //Used to add new URL to list for given user; makes use of arrExtractSearch and generateRandomString function above;
 let addURL = function(urlDb, longURLinput, cookieVal) {
@@ -54,12 +53,10 @@ const deleteURL = function(arr, item) {
   for (let i = 0; i < arr.length; i++) if (arr[i] === item) arr.splice(i, 1);
 };
 
-
 const fetchIP = function(url, callback) {
   request(url, (error, response, body) => {
     callback(response ? response.statusCode : 0);
   });
 };
-
 
 module.exports = { generateRandomString, arrExtractSearch, addURL, deleteURL, fetchIP };
