@@ -83,6 +83,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  console.log('register page: users global object:');
+  console.log(users);
   if (req.session.user_id) res.redirect('/urls');
   else {
   let templateVars = { user_id: undefined };
@@ -91,6 +93,8 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
+  console.log('login page: users global object:');
+  console.log(users);
   if (req.session.user_id) res.redirect('/urls');
   else {
   let templateVars = { user_id: undefined };
@@ -109,11 +113,9 @@ app.get("/error/:num", (req, res) => {
 // ## Register ##
 
 app.post("/register", (req, res) => {
-  // if the ID already exist in the server to prevent register
   if (arrExtractSearch(users, 'email', req.body.email).exist) {
     res.redirect('/error/400');
   }
-  // if email or password is empty string
   else if (req.body.email === '' || req.body.password === '') {
     res.redirect('/error/400');
   }
@@ -132,7 +134,6 @@ app.post("/register", (req, res) => {
 // ## Login ##
 
 app.post("/login", (req, res) => {
-  // if the ID does not exist in the server to log into
   if (!arrExtractSearch(users, 'email', req.body.email).exist) res.redirect('/error/403');
   else if (!bcrypt.compareSync(req.body.password, users[arrExtractSearch(users, 'email', req.body.email).subObj].password)) res.redirect('/error/403');
   else {
@@ -166,6 +167,7 @@ app.post("/urls", (req, res) => {
 // ## READ ##
 
 app.get("/urls", (req, res) => {
+
   if (req.session.user_id) {
     let templateVars = {
       urls: urlDatabase,
