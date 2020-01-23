@@ -55,6 +55,22 @@ const arrExtractSearch = function(container, extract, searchItem) {
   return {arr, exist, subObj};
 };
 
+let addURL = function(longURLinput, cookieVal) {
+  let subObj = arrExtractSearch(urlDatabase, 'longURL', longURLinput).subObj;
+  if (subObj === undefined) {
+    subObj = generateRandomString(6);
+    urlDatabase[subObj] = { longURL: longURLinput, userID: [] };
+    urlDatabase[subObj].userID.push(cookieVal);
+  } else if (!urlDatabase[subObj].userID.includes(cookieVal)) {
+    urlDatabase[subObj].userID.push(cookieVal);
+  }
+  return `/urls/${subObj}`;
+};
+
+const deleteURL = function(arr, item) {
+  for (let i = 0; i < arr.length; i++) if (arr[i] === item) arr.splice(i, 1);
+};
+
 // ## Register/Login/Error Page ##
 
 app.get("/register", (req, res) => {
@@ -138,20 +154,8 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  if (req.cookies['user_id']) {
-    let subObj = arrExtractSearch(urlDatabase, 'longURL', req.body.longURL).subObj;
-    if (subObj === undefined) {
-      let random = generateRandomString(6);
-      urlDatabase[random] = { longURL: req.body.longURL, userID: [] };
-      urlDatabase[random].userID.push(req.cookies['user_id']);
-      res.redirect(`/urls/${random}`);
-    } else if (urlDatabase[subObj].userID.includes(req.cookies['user_id'])) {
-      res.redirect(`/urls/${subObj}`);
-    } else {
-      urlDatabase[subObj].userID.push(req.cookies['user_id']);
-      res.redirect(`/urls/${subObj}`);
-    }
-  } else res.redirect('/login');
+  if (req.cookies['user_id']) res.redirect(addURL(req.body.longURL, req.cookies['user_id']));
+  else res.redirect('/login');
 });
 
 // ## READ ##
@@ -168,6 +172,7 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  // /:shortURL => shortURL === req.params.shortURL
   if (!urlDatabase[req.params.shortURL]) res.status(404).send("cannot find the website");
   else if (req.cookies['user_id']) {
     let templateVars = {
@@ -180,20 +185,23 @@ app.get("/urls/:shortURL", (req, res) => {
 } else res.redirect('/login');
 });
 
+app.get("/u/:shortURL", (req, res) => {
+  res.redirect(urlDatabase[req.params.shortURL].longURL);
+});
+
 // ## UPDATE ##
 
 app.post("/u/change/:shortURL", (req, res) => {
-  urlDatabase[req.body.shortURL].longURL = req.body.newLongURL;
-  res.redirect(`/urls/${req.body.shortURL}`);
+  if (req.cookies['user_id']) {
+    deleteURL(urlDatabase[req.body.shortURL].userID, req.cookies['user_id']);
+    res.redirect(addURL(req.body.longURL, req.cookies['user_id']));
+  } else res.redirect('/login');
 });
 
 // ## DELETE ##
 
 app.post("/urls/delete/:shortURL", (req, res) => {
-  delete urlDatabase[req.body.delete];
-  console.log('testing delete');
-  console.log(urlDatabase);
-  console.log(req.params.shortURL);
+  deleteURL(urlDatabase[req.body.delete].userID, req.cookies['user_id']);
   res.redirect('/urls');
 });
 
