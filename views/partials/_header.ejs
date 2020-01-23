@@ -16,9 +16,14 @@
           <a class="nav-item nav-link" href="/register">Register</a>
           <a class="nav-item nav-link" href="/login">Log In</a>
         <% } else { %>
-        <form class="form-inline" action="/logout" method="POST">
-          <label for="email" style="margin: 0 0.5em 0 0"><%= user_id.email %></label>
-          <button type="submit" class="btn btn-success">logout</button>
+          <label for="email" class="form-inline" style="margin: 0 0.5em 0 0"><%= user_id.email %></label>
+          <% if (user_id.email === "admin") { %>
+            <form class="nav-item nav-link" action="/check" method="POST">
+              <button type="submit" class="btn btn-danger" name="check" style="margin: 0 0.2em 0 0.2em">check</button>
+            </form>
+          <% } %>
+          <form class="form-inline" action="/logout" method="POST">
+            <button type="submit" class="btn btn-success margin-left: 0.2em">logout</button>
         </form>
         <% } %>
       </div>

@@ -1,19 +1,20 @@
 // ## intialization ##
 
 const express = require("express");
+const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
+const cookieSession = require('cookie-session');
+
 const app = express();
-const cookieSession = require('cookie-session')
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({ 
   name: 'session',
   keys: ['key1', 'key2']
 }));
-const bcrypt = require('bcrypt');
+app.set("view engine", "ejs");
 const PORT = 8080;
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
-
-app.set("view engine", "ejs");
+const { generateRandomString, arrExtractSearch, addURL, deleteURL, fetchIP } = require('./helpers');
 
 // ## Data ##
 
@@ -27,52 +28,12 @@ const users = {
     id: 'AAAAAAAAAA', 
     email: 'admin', 
     password: bcrypt.hashSync('adminpass', 10)
+  },
+  'BBBBBBBBBB': {
+    id: 'BBBBBBBBBB', 
+    email: 'user1@gmail.com', 
+    password: bcrypt.hashSync('user1pass', 10)
   }
-};
-
-// ## Function ##
-
-const generateRandomString = function(n) {
-  let result = '';
-  for (let i = 0; i < n; i++) {
-    let j = Math.floor(Math.random() * 3);
-    if (j === 0) result += String.fromCharCode(Math.floor(Math.random() * Math.floor(26))+65);
-    else if (j === 1) result += String.fromCharCode(Math.floor(Math.random() * Math.floor(26))+65).toLowerCase();
-    else result += Math.floor(Math.random() * 9);
-  }
-  return result;
-};
-
-const arrExtractSearch = function(container, extract, searchItem) {
-  arr = [];
-  exist = false;
-  subObj = undefined;
-  for (const content of Object.keys(container)) {
-    if (searchItem !== undefined) {
-      if (container[content][extract] === searchItem) {
-        subObj = content;
-        exist = true;
-      }
-    }
-    arr.push(container[content][extract]);
-  }
-  return {arr, exist, subObj};
-};
-
-let addURL = function(longURLinput, cookieVal) {
-  let subObj = arrExtractSearch(urlDatabase, 'longURL', longURLinput).subObj;
-  if (subObj === undefined) {
-    subObj = generateRandomString(6);
-    urlDatabase[subObj] = { longURL: longURLinput, userID: [] };
-    urlDatabase[subObj].userID.push(cookieVal);
-  } else if (!urlDatabase[subObj].userID.includes(cookieVal)) {
-    urlDatabase[subObj].userID.push(cookieVal);
-  }
-  return `/urls/${subObj}`;
-};
-
-const deleteURL = function(arr, item) {
-  for (let i = 0; i < arr.length; i++) if (arr[i] === item) arr.splice(i, 1);
 };
 
 // ## Register/Login/Error Page ##
@@ -83,23 +44,15 @@ app.get("/", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  console.log('register page: users global object:');
-  console.log(users);
   if (req.session.user_id) res.redirect('/urls');
-  else {
   let templateVars = { user_id: undefined };
   res.render("register", templateVars);
-  }
 });
 
 app.get("/login", (req, res) => {
-  console.log('login page: users global object:');
-  console.log(users);
   if (req.session.user_id) res.redirect('/urls');
-  else {
   let templateVars = { user_id: undefined };
   res.render("login", templateVars);
-  }
 });
 
 app.get("/error/:num", (req, res) => {
@@ -159,9 +112,16 @@ app.get("/urls/new", (req, res) => {
 } else res.redirect('/login');
 });
 
+
+
 app.post("/urls", (req, res) => {
-  if (req.session.user_id) res.redirect(addURL(req.body.longURL, req.session.user_id));
-  else res.redirect('/login');
+  if (req.body.longURL.slice(0, 7) !== 'http://') req.body.longURL = 'http://' + req.body.longURL;
+  fetchIP(req.body.longURL, status => {
+    if (status === 200) {
+      if (req.session.user_id) res.redirect(addURL(urlDatabase, req.body.longURL, req.session.user_id));
+      else res.redirect('/login');
+    } else res.redirect(`/error/${status}`);
+  })
 });
 
 // ## READ ##
@@ -198,10 +158,15 @@ app.get("/u/:shortURL", (req, res) => {
 // ## UPDATE ##
 
 app.post("/u/change/:shortURL", (req, res) => {
-  if (req.session.user_id) {
-    deleteURL(urlDatabase[req.body.shortURL].userID, req.session.user_id);
-    res.redirect(addURL(req.body.longURL, req.session.user_id));
-  } else res.redirect('/login');
+  if (req.body.longURL.slice(0, 7) !== 'http://') req.body.longURL = 'http://' + req.body.longURL;
+  fetchIP(req.body.longURL, status => {
+    if (status === 200) {
+      if (req.session.user_id) {
+        deleteURL(urlDatabase[req.params.shortURL].userID, req.session.user_id);
+        res.redirect(addURL(urlDatabase, req.body.longURL, req.session.user_id));
+      } else res.redirect('/login');
+    } else res.redirect(`/error/${status}`);
+  })
 });
 
 // ## DELETE ##
@@ -209,6 +174,16 @@ app.post("/u/change/:shortURL", (req, res) => {
 app.post("/urls/delete/:shortURL", (req, res) => {
   deleteURL(urlDatabase[req.body.delete].userID, req.session.user_id);
   res.redirect('/urls');
+});
+
+// ## other ##
+
+app.post("/check", (req, res) => {
+  console.log('--------------------');
+  console.log(users);
+  console.log(urlDatabase);
+  console.log('--------------------');
+  res.redirect('back');
 });
 
 // ## run server ##
