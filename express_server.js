@@ -56,9 +56,12 @@ app.get("/login", (req, res) => {
 
 // --- Register/Login/Error Page -----
 app.get("/error/:num", (req, res) => {
-  res.render("error",
-  { error: req.params.num,
-    user_id: undefined });
+  let templateVars = {
+    error: req.params.num,
+    user_id: undefined
+  };
+  if (req.session.user_id) templateVars.user_id = users[req.session.user_id];
+  res.render("error", templateVars);
 });
 
 // ----------- Index Page ------------
@@ -128,7 +131,7 @@ app.post("/urls", (req, res) => {
     let longURL = '';
     if (req.body.longURL.slice(0, 7) !== 'http://') longURL = `http://${req.body.longURL}`;
     else longURL = req.body.longURL;
-    fetchIP(longURL, status => {
+    statusCheck(longURL, status => {
       if (status === 200) {
         if (req.session.user_id) res.redirect(addURL(urlDatabase, longURL, req.session.user_id));
         else res.redirect('/login');

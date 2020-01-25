@@ -54,7 +54,6 @@ const deleteURL = function(arr, item) {
 };
 
 const statusCheck = function(url, callback) {
-  console.log('entering fetch ip');
   request(url, (error, response, body) => {
     callback(response ? response.statusCode : 0);
   });
