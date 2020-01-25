@@ -53,10 +53,11 @@ const deleteURL = function(arr, item) {
   for (let i = 0; i < arr.length; i++) if (arr[i] === item) arr.splice(i, 1);
 };
 
-const fetchIP = function(url, callback) {
+const statusCheck = function(url, callback) {
+  console.log('entering fetch ip');
   request(url, (error, response, body) => {
     callback(response ? response.statusCode : 0);
   });
 };
 
-module.exports = { generateRandomString, arrExtractSearch, addURL, deleteURL, fetchIP };
+module.exports = { generateRandomString, arrExtractSearch, addURL, deleteURL, statusCheck };
