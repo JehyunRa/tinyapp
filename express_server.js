@@ -113,11 +113,11 @@ app.post("/logout", (req, res) => {
 
 // ----- Registration Process ------
 app.post("/register", (req, res) => {
-  let random = generateRandomString(10);
   let parentObjectName = findParentObjectName(users, 'email', req.body.email);
   if (parentObjectName !== undefined) res.redirect('/error/400');
   else if (req.body.email === '' || req.body.password === '') res.redirect('/error/400');
   else {
+    let random = generateRandomString(10);
     users[random] =
     { id: random,
       email: req.body.email,

@@ -28,15 +28,15 @@ const findParentObjectName = function(searchIn, dataType, searchItem) {
   return undefined;
 };
 
-//Used to add new URL to list for given user; makes use of arrExtractSearch and generateRandomString function above;
-let addURL = function(urlDb, longURLinput, cookieVal) {
-  let subObj = findParentObjectName(urlDb, 'longURL', longURLinput);
-  if (subObj === undefined) {
-    subObj = generateRandomString(6);
-    urlDb[subObj] = { longURL: longURLinput, userID: [] };
-    urlDb[subObj].userID.push(cookieVal);
-  } else if (!urlDb[subObj].userID.includes(cookieVal)) {
-    urlDb[subObj].userID.push(cookieVal);
+//Used to add new URL to list for given user; makes use of findParentObjectName and generateRandomString function above;
+let addURL = function(urlDb, longURLinput, cookieValue) {
+  let shortURL = findParentObjectName(urlDb, 'longURL', longURLinput);
+  if (shortURL === undefined) {
+    shortURL = generateRandomString(6);
+    urlDb[shortURL] = { longURL: longURLinput, userID: [] };
+    urlDb[shortURL].userID.push(cookieValue);
+  } else if (!urlDb[shortURL].userID.includes(cookieValue)) {
+    urlDb[shortURL].userID.push(cookieValue);
   }
   return `/urls`;
 };

@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { arrExtractSearch } = require('../helpers.js');
+const { findParentObjectName } = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -17,7 +17,7 @@ const testUsers = {
 
 describe('getUserByEmail', function() {
   it('should return a user with valid email', function() {
-    const user = arrExtractSearch(testUsers, 'email', "user@example.com").subObj;
+    const user = findParentObjectName(testUsers, 'email', "user@example.com");
     const expectedOutput = "userRandomID";
     assert.equal(user, expectedOutput);
   });
