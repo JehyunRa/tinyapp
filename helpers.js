@@ -35,7 +35,7 @@ const arrExtractSearch = function(container, extract, searchItem) {
   return {arr, exist, subObj};
 };
 
-const findParentObject = function(searchIn, dataType, searchItem) {
+const findParentObjectName = function(searchIn, dataType, searchItem) {
   for (const content of Object.keys(searchIn)) {
     if (searchItem !== undefined) {
       if (searchIn[content][dataType] === searchItem) {
@@ -48,7 +48,7 @@ const findParentObject = function(searchIn, dataType, searchItem) {
 
 //Used to add new URL to list for given user; makes use of arrExtractSearch and generateRandomString function above;
 let addURL = function(urlDb, longURLinput, cookieVal) {
-  let subObj = findParentObject(urlDb, 'longURL', longURLinput);
+  let subObj = findParentObjectName(urlDb, 'longURL', longURLinput);
   if (subObj === undefined) {
     subObj = generateRandomString(6);
     urlDb[subObj] = { longURL: longURLinput, userID: [] };
@@ -70,4 +70,4 @@ const statusCheck = function(url, callback) {
   });
 };
 
-module.exports = { generateRandomString, arrExtractSearch, addURL, deleteURL, statusCheck, findParentObject };
+module.exports = { generateRandomString, arrExtractSearch, addURL, deleteURL, statusCheck, findParentObjectName };

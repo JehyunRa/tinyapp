@@ -14,7 +14,7 @@ app.use(cookieSession({
 app.set("view engine", "ejs");
 const PORT = 8080;
 
-const { generateRandomString, arrExtractSearch, addURL, deleteURL, statusCheck } = require('./helpers');
+const { generateRandomString, addURL, deleteURL, statusCheck, findParentObjectName } = require('./helpers');
 
 // -------------- Data --------------
 const urlDatabase = {
@@ -56,11 +56,13 @@ app.get("/login", (req, res) => {
 
 // --- Register/Login/Error Page -----
 app.get("/error/:num", (req, res) => {
+  console.log('start of error page here');
   let templateVars = {
     error: req.params.num,
     user_id: undefined
   };
   if (req.session.user_id) templateVars.user_id = users[req.session.user_id];
+  console.log('end of error page here');
   res.render("error", templateVars);
 });
 
@@ -99,10 +101,10 @@ app.get("/u/:shortURL", (req, res) => {
 // # =========== POST ==============
 // --------- Login Process ---------
 app.post("/login", (req, res) => {
-  !arrExtractSearch(users, 'email', req.body.email).exist ? res.redirect('/error/403')
-  : !bcrypt.compareSync(req.body.password, users[arrExtractSearch(users, 'email', req.body.email).subObj].password) ? res.redirect('/error/403')
-  : req.session.user_id = arrExtractSearch(users, 'email', req.body.email).subObj;
-    res.redirect('/urls');
+  let parentObjectName = findParentObjectName(users, 'email', req.body.email);
+  if (parentObjectName === undefined) res.redirect('/error/403');
+  else if (!bcrypt.compareSync(req.body.password, users[parentObjectName].password)) res.redirect('/error/403');
+  else if (req.session.user_id = parentObjectName) res.redirect('/urls');
 });
 
 // -------- Logout Process ---------
@@ -114,14 +116,17 @@ app.post("/logout", (req, res) => {
 // ----- Registration Process ------
 app.post("/register", (req, res) => {
   let random = generateRandomString(10);
-  arrExtractSearch(users, 'email', req.body.email).exist ? res.redirect('/error/400')
-  : req.body.email === '' || req.body.password === '' ? res.redirect('/error/400')
-  : users[random] =
+  let parentObjectName = findParentObjectName(users, 'email', req.body.email);
+  if (parentObjectName !== undefined) res.redirect('/error/400');
+  else if (req.body.email === '' || req.body.password === '') res.redirect('/error/400');
+  else {
+    users[random] =
     { id: random,
       email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 10)};
-    req.session.user_id = arrExtractSearch(users, 'email', req.body.email).subObj;
+    req.session.user_id = random;
     res.redirect('/urls');
+  }
 });
 
 // ------- Add URL Process ---------
