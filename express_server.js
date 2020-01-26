@@ -56,13 +56,11 @@ app.get("/login", (req, res) => {
 
 // --- Register/Login/Error Page -----
 app.get("/error/:num", (req, res) => {
-  console.log('start of error page here');
   let templateVars = {
     error: req.params.num,
     user_id: undefined
   };
   if (req.session.user_id) templateVars.user_id = users[req.session.user_id];
-  console.log('end of error page here');
   res.render("error", templateVars);
 });
 

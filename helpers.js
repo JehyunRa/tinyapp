@@ -14,27 +14,8 @@ const generateRandomString = function(n) {
   return result;
 };
 
-// For each sub-object of object 'container', look for its key named 'extract' and get value from it:
-// 1. push these values in an array
-// 2. if 'searchItem' optional input exist, check if any of the values match the searchItem and return true if match exists;
-// 3. if match exists from above, return name of the sub-object where 'extract: searchItem' key-value pair was found
-// return 1, 2, 3 in an object as following: {arr: 1, exist: 2, subObj: 3}
-const arrExtractSearch = function(container, extract, searchItem) {
-  let arr = [];
-  let exist = false;
-  let subObj = undefined;
-  for (const content of Object.keys(container)) {
-    if (searchItem !== undefined) {
-      if (container[content][extract] === searchItem) {
-        subObj = content;
-        exist = true;
-      }
-    }
-    arr.push(container[content][extract]);
-  }
-  return {arr, exist, subObj};
-};
-
+// Inside each sub-object of object 'searchIn', look for its key named 'dataType' and compare its value to 'searchItem';
+// If value matching 'searchItem' exist, return the name of sub-object, else return undefined;
 const findParentObjectName = function(searchIn, dataType, searchItem) {
   for (const content of Object.keys(searchIn)) {
     if (searchItem !== undefined) {
@@ -56,7 +37,7 @@ let addURL = function(urlDb, longURLinput, cookieVal) {
   } else if (!urlDb[subObj].userID.includes(cookieVal)) {
     urlDb[subObj].userID.push(cookieVal);
   }
-  return `/urls/${subObj}`;
+  return `/urls`;
 };
 
 //Used to delete URL from list of given user;
@@ -70,4 +51,4 @@ const statusCheck = function(url, callback) {
   });
 };
 
-module.exports = { generateRandomString, arrExtractSearch, addURL, deleteURL, statusCheck, findParentObjectName };
+module.exports = { generateRandomString, addURL, deleteURL, statusCheck, findParentObjectName };
