@@ -6,10 +6,11 @@ const request = require('request');
 const generateRandomString = function(n) {
   let result = '';
   for (let i = 0; i < n; i++) {
-    let j = Math.floor(Math.random() * 3);
-    if (j === 0) result += String.fromCharCode(Math.floor(Math.random() * Math.floor(26))+65);
-    else if (j === 1) result += String.fromCharCode(Math.floor(Math.random() * Math.floor(26))+65).toLowerCase();
-    else result += Math.floor(Math.random() * 9);
+    switch(Math.floor(Math.random() * 3)) {
+      case 0: result += String.fromCharCode(Math.floor(Math.random() * 26) + 97); break;
+      case 1: result += String.fromCharCode(Math.floor(Math.random() * 26) + 65); break;
+      default: result += String.fromCharCode(Math.floor(Math.random() * 10) + 48);
+    }
   }
   return result;
 };
