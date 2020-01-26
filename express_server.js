@@ -135,10 +135,8 @@ app.post("/urls", (req, res) => {
     if (req.body.longURL.slice(0, 7) !== 'http://') longURL = `http://${req.body.longURL}`;
     else longURL = req.body.longURL;
     statusCheck(longURL, status => {
-      if (status === 200) {
-        if (req.session.user_id) res.redirect(addURL(urlDatabase, longURL, req.session.user_id));
-        else res.redirect('/login');
-      } else res.redirect(`/error/${status}`);
+      if (status === 200) res.redirect(addURL(urlDatabase, longURL, req.session.user_id));
+      else res.redirect(`/error/${status}`);
     });
   };
 });
@@ -157,10 +155,8 @@ app.post("/u/change/:shortURL", (req, res) => {
   if (req.body.longURL.slice(0, 7) !== 'http://') req.body.longURL = 'http://' + req.body.longURL;
   statusCheck(req.body.longURL, status => {
     if (status === 200) {
-      if (req.session.user_id) {
-        deleteURL(urlDatabase[req.params.shortURL].userID, req.session.user_id);
-        res.redirect(addURL(urlDatabase, req.body.longURL, req.session.user_id));
-      } else res.redirect('/login');
+      deleteURL(urlDatabase[req.params.shortURL].userID, req.session.user_id);
+      res.redirect(addURL(urlDatabase, req.body.longURL, req.session.user_id));
     } else res.redirect(`/error/${status}`);
   });
 });
