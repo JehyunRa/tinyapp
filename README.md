@@ -28,7 +28,7 @@ delete button: delete URL from the list
 #### create new URL Page
 This is create new URL page and can be accessed by clicking 'create new URL' on the left side of top nav bar. A user can add new URLs to list on the my URLs page one at a time by entering a new URL here.
 
-By default, if a user enters a URL without protocol identifier 'http://' the app will add it to the front of given URL before processing the request. It attempts to establish connection with the given URL and if it can find the website, it will add the URL to the list. If it fails to find the website the app will redirect the user to 0 error page.
+By default, if a user enters a URL without protocol identifier 'http://' the app will add it to the front of given URL before processing the request. It attempts to establish connection with the given URL and if it can find the website, it will add the URL to the list. If it fails to find the website the app will redirect the user to 0 error page and the list won't be modified.
 
 Once the URL is successfully added to the user's list, the user will be redirected to my URLs page.
 
@@ -36,7 +36,9 @@ Once the URL is successfully added to the user's list, the user will be redirect
 #### create new URL Page
 This is edit page and can be accessed by clicking 'edit' on each of the edit button on my URLs page's list.
 
-A user can remove URL currently displaying on the page from the list and add another URL that the user enters to the list.
+A user can remove URL currently displaying on the page from the list and add another URL that the user enters to the list. Same as create new URL, the app will add 'http://' to URL without protocol identifier, and attempts to establish connection with the given URL. If it can find the website, it will add the new URL to the list and delete the previous one from the user's list. If it fails to find the website the app will redirect the user to 0 error page and the list won't be modified.
+
+Once the URL is successfully added to the user's list, the user will be redirected to my URLs page.
 
 ## Dependencies
 
