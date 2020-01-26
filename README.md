@@ -55,3 +55,6 @@ Once the URL is successfully added to the user's list, the user will be redirect
 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `node express_server.js` or `npm start` command.
+
+## Version History
+Following link contains summary of update and bug fixes: [version history](versions.md)
