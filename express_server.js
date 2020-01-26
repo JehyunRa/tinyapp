@@ -14,7 +14,7 @@ app.use(cookieSession({
 app.set("view engine", "ejs");
 const PORT = 8080;
 
-const { generateRandomString, addURL, deleteURL, statusCheck, findParentObjectName } = require('./helpers');
+const { generateRandomString, addURL, deleteURL, statusCheck, findParentObjectName, URLcleanse } = require('./helpers');
 
 // -------------- Data --------------
 const urlDatabase = {
@@ -131,9 +131,7 @@ app.post("/register", (req, res) => {
 app.post("/urls", (req, res) => {
   if (!req.session.user_id) res.redirect('/login');
   else {
-    let longURL = '';
-    if (req.body.longURL.slice(0, 7) !== 'http://') longURL = `http://${req.body.longURL}`;
-    else longURL = req.body.longURL;
+    let longURL = URLcleanse(req.body.longURL);
     statusCheck(longURL, status => {
       if (status === 200) res.redirect(addURL(urlDatabase, longURL, req.session.user_id));
       else res.redirect(`/error/${status}`);
@@ -152,13 +150,15 @@ app.post("/urls/delete/:shortURL", (req, res) => {
 
 app.post("/u/change/:shortURL", (req, res) => {
   if (!req.session.user_id) res.redirect('/login');
-  if (req.body.longURL.slice(0, 7) !== 'http://') req.body.longURL = 'http://' + req.body.longURL;
-  statusCheck(req.body.longURL, status => {
-    if (status === 200) {
-      deleteURL(urlDatabase[req.params.shortURL].userID, req.session.user_id);
-      res.redirect(addURL(urlDatabase, req.body.longURL, req.session.user_id));
-    } else res.redirect(`/error/${status}`);
-  });
+  else {
+    let longURL = URLcleanse(req.body.longURL);
+    statusCheck(longURL, status => {
+      if (status === 200) {
+        deleteURL(urlDatabase[req.params.shortURL].userID, req.session.user_id);
+        res.redirect(addURL(urlDatabase, longURL, req.session.user_id));
+      } else res.redirect(`/error/${status}`);
+    });
+  };
 });
 
 // # =========== OTHER ==============

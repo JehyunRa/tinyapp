@@ -28,6 +28,15 @@ const findParentObjectName = function(searchIn, dataType, searchItem) {
   return undefined;
 };
 
+//Modify URL input to all have http:// at the beginning;
+let URLcleanse = function(url) {
+  let longURL = '';
+  if (url.slice(0, 8) === 'https://') longURL = `http${url.slice(5)}`;
+  else if (url.slice(0, 7) !== 'http://') longURL = `http://${url}`;
+  else longURL = url;
+  return longURL;
+}
+
 //Used to add new URL to list for given user; makes use of findParentObjectName and generateRandomString function above;
 let addURL = function(urlDb, longURLinput, cookieValue) {
   let shortURL = findParentObjectName(urlDb, 'longURL', longURLinput);
@@ -52,4 +61,4 @@ const statusCheck = function(url, callback) {
   });
 };
 
-module.exports = { generateRandomString, addURL, deleteURL, statusCheck, findParentObjectName };
+module.exports = { generateRandomString, addURL, deleteURL, statusCheck, findParentObjectName, URLcleanse };
